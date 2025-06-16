@@ -9,65 +9,64 @@ while maintaining all original functionality. Features include:
 - Responsive layout
 - Enhanced visual feedback
 """
-
-import os
 import random
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 # --- Custom Exceptions ---
-class InputError(Exception):                        #Exception raised for invalid user inputs.
+class InputError(Exception):      #Exception raised for invalid user inputs.
     pass
 
-class FundTransferError(Exception):                  #Exception raised for errors during fund transfers.
+class FundTransferError(Exception):    
     pass
 
 # --- Account Classes ---
-class Account:                                        #Base class for all account types.
+class Account:                         #Base class for all account types.
     def __init__(self, number, pin, acc_type, amount=0.0):
         self.num = number
         self.pin = pin
         self.type = acc_type
         self.balance = amount
 
-    def deposit(self, amount):                           #Adds the specified amount to the account balance.
+    def deposit(self, amount):      #Adds the specified amount to the account balance.
         if amount <= 0:
             raise InputError("Amount must be more than zero.")
         self.balance += amount
 
-    def withdraw(self, amount):                          #Deducts the specified amount from the balance if sufficient funds exist.
+    def withdraw(self, amount):        #Deducts the specified amount from the balance if sufficient funds exist.
         if amount > self.balance:
             raise InputError("Not enough balance.")
         self.balance -= amount
 
-    def transfer(self, amount, receiver):                    #Transfers funds to another account."""
+    def transfer(self, amount, receiver): #Transfers funds to another account.
         if amount > self.balance:
             raise FundTransferError("Not enough funds to send.")
         self.withdraw(amount)
         receiver.deposit(amount)
 
-    def recharge(self, number, amount):                      #Simulates a mobile recharge by deducting the amount.
+    def recharge(self, number, amount):         #Simulates a mobile recharge by deducting the amount.
         if not number.isdigit() or len(number) != 10:
             raise InputError("Phone number must be 10 digits.")
         if amount > self.balance:
             raise InputError("Not enough balance for top-up.")
         self.balance -= amount
 
-class Personal(Account):                                  #Represents a personal account.
+class Personal(Account):                    #Represents a personal account.
     def __init__(self, number, pin, balance=0.0):
         super().__init__(number, pin, "personal", balance)
 
-class Business(Account):                                 #Represents a business account.
+class Business(Account):                   #Represents a business account.
     def __init__(self, number, pin, balance=0.0):
         super().__init__(number, pin, "business", balance)
 
 # --- Core Banking System Logic ---
-class BankCore:                                          #Manages all user accounts and data persistence.
+class BankCore:              #Manages all user accounts and data persistence.
     def __init__(self):
         self.users = {}
         self._load_data()
 
-    def _load_data(self):                                     #Loads account data from the local text file.
+    def _load_data(self):       #Loads account data from the local text file.
         if not os.path.isfile("data.txt"):
             return
         with open("data.txt", "r") as file:
@@ -76,12 +75,12 @@ class BankCore:                                          #Manages all user accou
                 cls = Personal if typ == "personal" else Business
                 self.users[acc] = cls(acc, pwd, float(bal))
 
-    def _save_data(self):                                   #Writes all current account data to the local text file.
+    def _save_data(self):               #Writes all current account data to the local text file.
         with open("data.txt", "w") as file:
             for acc in self.users.values():
                 file.write(f"{acc.num},{acc.pin},{acc.type},{acc.balance}\n")
 
-    def new_account(self, kind):                             #Creates and registers a new account."""
+    def new_account(self, kind):        #Creates and registers a new account.
         acc_num = str(random.randint(10000, 99999))
         pin = str(random.randint(1000, 9999))
         user = Personal(acc_num, pin) if kind == "personal" else Business(acc_num, pin)
@@ -89,7 +88,8 @@ class BankCore:                                          #Manages all user accou
         self._save_data()
         return acc_num, pin
 
-    def authenticate(self, acc_num, pin):                         #Authenticates a user based on account number and PIN.
+    def authenticate(self, acc_num, pin):                      
+#Authenticates a user based on account number and PIN.
         acc = self.users.get(acc_num)
         if acc and acc.pin == pin:
             return acc
@@ -103,7 +103,7 @@ class BankCore:                                          #Manages all user accou
             raise InputError("Account not found.")
 
 # --- Enhanced Graphical User Interface ---
-class BankApp:                                                   #Modernized GUI for the banking application.
+class BankApp:                   #Modernized GUI for the banking application.
     def __init__(self, system):
         self.bank = system
         self.user = None
@@ -115,9 +115,9 @@ class BankApp:                                                   #Modernized GUI
         # Configure styles
         self.style = ttk.Style()
         self.style.configure('TFrame', background='#f0f0f0')
-        self.style.configure('TLabel', background='#f0f0f0', font=('Helvetica', 10))
-        self.style.configure('Header.TLabel', font=('Helvetica', 14, 'bold'))
-        self.style.configure('TButton', font=('Helvetica', 10), padding=5)
+        self.style.configure('TLabel', background='#f0f0f0', font=('Times New Roman', 10))
+        self.style.configure('Header.TLabel', font=('Times New Roman', 14, 'bold'))
+        self.style.configure('TButton', font=('Times New Roman', 10), padding=5)
         self.style.configure('Primary.TButton', foreground='black', background='#0078d7')
         self.style.configure('Success.TButton', foreground='black', background='#4CAF50')
         self.style.configure('Danger.TButton', foreground='black', background='#f44336')
@@ -129,48 +129,48 @@ class BankApp:                                                   #Modernized GUI
         self._show_login()
         self.app.mainloop()
 
-    def _clear(self):                                          #Clears the current window content.
+    def _clear(self):                  #Clears the current window content.
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
-    def _show_login(self):                                    #Displays the login screen with modern styling.
+    def _show_login(self):    #Displays the login screen with modern styling.
         self._clear()
         
         # Header
         ttk.Label(self.main_frame, text="AchoDaka Bank", style='Header.TLabel').pack(pady=(0, 20))
         
-        # Login form container
+        # Login container
         form_frame = ttk.Frame(self.main_frame)
         form_frame.pack(pady=10)
         
         # Account number field
         ttk.Label(form_frame, text="Account Number:").grid(row=0, column=0, sticky=tk.W, pady=5)
-        self.entry_acc = ttk.Entry(form_frame, font=('Helvetica', 10))
+        self.entry_acc = ttk.Entry(form_frame, font=('Times New Roman', 10))
         self.entry_acc.grid(row=0, column=1, pady=5, padx=5)
         
         # PIN field
         ttk.Label(form_frame, text="PIN:").grid(row=1, column=0, sticky=tk.W, pady=5)
-        self.entry_pin = ttk.Entry(form_frame, show="•", font=('Helvetica', 10))
+        self.entry_pin = ttk.Entry(form_frame, show="•", font=('Times New Roman', 10))
         self.entry_pin.grid(row=1, column=1, pady=5, padx=5)
         
         # Buttons container
-        button_frame = ttk.Frame(self.main_frame)
-        button_frame.pack(pady=20)
+        b_layout = ttk.Frame(self.main_frame)
+        b_layout.pack(pady=20)
         
-        # Login button
-        ttk.Button(button_frame, text="Login", command=self._login, style='Primary.TButton').pack(fill=tk.X, pady=5)
+        # Login
+        ttk.Button(b_layout, text="Login", command=self._login, style='Primary.TButton').pack(fill=tk.X, pady=5)
         
         # Registration buttons
-        ttk.Label(button_frame, text="Don't have an account?").pack(pady=(10, 5))
-        ttk.Button(button_frame, text="Open Personal Account", 
+        ttk.Label(b_layout, text="Don't have an account?").pack(pady=(10, 5))
+        ttk.Button(b_layout, text="Open Personal Account", 
                   command=lambda: self._register("personal"), style='Success.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Open Business Account", 
+        ttk.Button(b_layout, text="Open Business Account", 
                   command=lambda: self._register("business"), style='Success.TButton').pack(fill=tk.X, pady=5)
         
         # Focus on account number field
         self.entry_acc.focus_set()
 
-    def _register(self, acc_type):                          #Handles new account registration with visual feedback.
+    def _register(self, acc_type):          #Handles new account registration with visual feedback.
         acc_num, pin = self.bank.new_account(acc_type)
         messagebox.showinfo("Account Created", 
                           f"Your new {acc_type} account has been created!\n\n"
@@ -178,18 +178,18 @@ class BankApp:                                                   #Modernized GUI
                           f"PIN: {pin}\n\n"
                           "Please keep this information secure.")
 
-    def _login(self):                                        #Attempts to log the user into the system.
+    def _login(self):           #Attempts to log the user into the system.
         num = self.entry_acc.get()
         pin = self.entry_pin.get()
         try:
             self.user = self.bank.authenticate(num, pin)
-            self._show_dashboard()
-        except InputError as e:
-            messagebox.showerror("Login Failed", str(e))
+            self.dashboard()
+        except InputError as er:
+            messagebox.showerror("Login Fails", str(er))
             self.entry_pin.delete(0, tk.END)
             self.entry_pin.focus_set()
 
-    def _show_dashboard(self):                           #Displays the main dashboard with account controls.
+    def dashboard(self):             #Displays the main dashboard with account controls.
         self._clear()
         
         # Header with user info
@@ -198,35 +198,35 @@ class BankApp:                                                   #Modernized GUI
                  style='Header.TLabel').pack(pady=(0, 20))
         
         # Balance display
-        balance_frame = ttk.Frame(self.main_frame)
-        balance_frame.pack(fill=tk.X, pady=10)
-        ttk.Label(balance_frame, text="Current Balance:").pack(side=tk.LEFT)
-        ttk.Label(balance_frame, text=f"Nu. {self.user.balance:.1f}", 
-                 font=('Helvetica', 12, 'bold')).pack(side=tk.RIGHT)
+        amount_layout = ttk.Frame(self.main_frame)
+        amount_layout.pack(fill=tk.X, pady=10)
+        ttk.Label(amount_layout, text="Balance:").pack(side=tk.LEFT)
+        ttk.Label(amount_layout, text=f"Nu. {self.user.balance:.1f}", 
+                 font=('Times New Roman', 12, 'bold')).pack(side=tk.RIGHT)
         
         # Action buttons
-        button_frame = ttk.Frame(self.main_frame)
-        button_frame.pack(fill=tk.BOTH, expand=True)
+        b_layout = ttk.Frame(self.main_frame)
+        b_layout.pack(fill=tk.BOTH, expand=True)
         
-        ttk.Button(button_frame, text="Deposit", command=self._deposit, 
+        ttk.Button(b_layout, text="Deposit", command=self._deposit, 
                   style='Primary.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Withdraw", command=self._withdraw, 
+        ttk.Button(b_layout, text="Withdraw", command=self._withdraw, 
                   style='Primary.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Transfer Money", command=self._transfer, 
+        ttk.Button(b_layout, text="Transfer Money", command=self._transfer, 
                   style='Primary.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Mobile Recharge", command=self._recharge, 
+        ttk.Button(b_layout, text="Mobile Recharge", command=self._recharge, 
                   style='Primary.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="View Balance", command=self._balance, 
+        ttk.Button(b_layout, text="View Balance", command=self._balance, 
                   style='Success.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Delete Account", command=self._delete_account, 
+        ttk.Button(b_layout, text="Delete Account", command=self._delete_account, 
                   style='Danger.TButton').pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Logout", command=self._logout).pack(fill=tk.X, pady=(20, 5))
+        ttk.Button(b_layout, text="Logout", command=self._logout).pack(fill=tk.X, pady=(20, 5))
 
-    def _balance(self):                              #Shows the current account balance in a styled dialog.
+    def _balance(self):              #Shows the current account balance in a styled dialog.
         messagebox.showinfo("Account Balance", 
                           f"Your current balance is:\n\nNu. {self.user.balance:.2f}")
 
-    def _deposit(self):                              #Handles deposit transactions with input validation.
+    def _deposit(self):           #Handles deposit transactions with input validation.
         amt = self._prompt_amount("Enter deposit amount:")
         if amt:
             try:
@@ -236,7 +236,7 @@ class BankApp:                                                   #Modernized GUI
             except InputError as e:
                 messagebox.showerror("Deposit Failed", str(e))
 
-    def _withdraw(self):                              #Handles withdrawals with confirmation.
+    def _withdraw(self):         #Handles withdrawals with confirmation.
         amt = self._prompt_amount("Enter withdrawal amount:")
         if amt:
             try:
@@ -246,7 +246,7 @@ class BankApp:                                                   #Modernized GUI
             except InputError as e:
                 messagebox.showerror("Withdrawal Failed", str(e))
 
-    def _transfer(self):                               #Handles money transfers between accounts.
+    def _transfer(self):        #Handles money transfers between accounts.
         receiver = self._prompt("Enter receiver's account number:")
         if not receiver:
             return
@@ -272,7 +272,7 @@ class BankApp:                                                   #Modernized GUI
             except (InputError, FundTransferError) as e:
                 messagebox.showerror("Transfer Failed", str(e))
 
-    def _recharge(self):                               #Handles mobile recharge with validation.
+    def _recharge(self):           #Handles mobile recharge with validation.
         number = self._prompt("Enter 10-digit mobile number:")
         if not number:
             return
@@ -290,18 +290,18 @@ class BankApp:                                                   #Modernized GUI
             except InputError as e:
                 messagebox.showerror("Recharge Failed", str(e))
 
-    def _delete_account(self):                    #Handles account deletion with confirmation."""
-        if messagebox.askyesno("Confirm Deletion", 
-                             "Are you sure you want to permanently delete your account?\n"
-                             "This action cannot be undone."):
+    def _delete_account(self):   #Handles account deletion with confirmation.
+        if messagebox.askyesno("Confirm delete action", 
+                             "Are you sure?\n"
+                             "This action is permanent."):
             try:
                 self.bank.remove_account(self.user.num)
-                messagebox.showinfo("Account Deleted", "Your account has been successfully deleted.")
+                messagebox.showinfo("Account successfully deleted.")
                 self._show_login()
             except InputError as e:
-                messagebox.showerror("Deletion Failed", str(e))
+                messagebox.showerror("Account deletion Fails", str(e))
 
-    def _logout(self):                              #Logs the user out and returns to login screen.
+    def _logout(self):          #returns to login screen.
         self.user = None
         self._show_login()
 
@@ -320,11 +320,11 @@ class BankApp:                                                   #Modernized GUI
             result.append(entry.get())
             dialog.destroy()
         
-        button_frame = ttk.Frame(dialog)
-        button_frame.pack(pady=10)
+        b_layout = ttk.Frame(dialog)
+        b_layout.pack(pady=10)
         
-        ttk.Button(button_frame, text="OK", command=submit, style='Primary.TButton').pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+        ttk.Button(b_layout, text="OK", command=submit, style='Primary.TButton').pack(side=tk.LEFT, padx=5)
+        ttk.Button(b_layout, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
         
         entry.focus_set()
         dialog.grab_set()
@@ -332,17 +332,17 @@ class BankApp:                                                   #Modernized GUI
         
         return result[0] if result else None
 
-    def _prompt_amount(self, message):                  #Prompts for a numeric value with validation.
+    def _prompt_amount(self, message):  #Prompts for a numeric value with validation.
         try:
             value = self._prompt(message)
             if not value:
                 return None
             amount = float(value)
             if amount <= 0:
-                raise ValueError("Amount must be positive")
+                raise ValueError("Invalid Amount")
             return amount
         except ValueError:
-            messagebox.showerror("Invalid Amount", "Please enter a valid positive number.")
+            messagebox.showerror("Please enter a valid amount.")
             return None
 
 # --- Application Launch ---

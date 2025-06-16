@@ -1,0 +1,6 @@
+89051,9303,personal,0.0
+23831,1206,business,80.0
+85112,6703,personal,0.0
+26615,4316,personal,0.0
+14619,4445,business,0.0
+22222,2222,business,500
